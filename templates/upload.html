@@ -1,0 +1,13 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    My 3Depot - Upload
+{% endblock %}
+
+{% block content %}
+    <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+        <label for="model">Select 3D Model:</label>
+        <input type="file" name="model" accept=".obj, .fbx, .gltf" required>
+        <button type="submit">Upload</button>
+    </form>
+{% endblock %}
