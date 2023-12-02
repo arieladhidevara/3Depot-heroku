@@ -134,9 +134,7 @@ def register():
 
         return redirect("/")
 
-
     
-
 @app.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload():
@@ -165,3 +163,4 @@ def view():
     s3_object_url = "https://m.media-amazon.com/images/I/51VXgNZFIoL._AC_UF894,1000_QL80_.jpg"
     return render_template('view.html', s3_object_url=s3_object_url)
 
+# commit
