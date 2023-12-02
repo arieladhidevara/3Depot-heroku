@@ -13,6 +13,15 @@ from helpers import login_required
 # Configure application
 app = Flask(__name__)
 
+# Configure session to use filesystem (instead of signed cookies)
+app.config["SESSION_PERMANENT"] = False
+app.config["SESSION_TYPE"] = "filesystem"
+Session(app)
+
+# Initialize a new SQL object connected to your database
+db = SQL("sqlite:///finance.db")
+
+
 # AWS S3 configuration
 S3_BUCKET = 'your-s3-bucket-name'
 S3_REGION = 'your-aws-region'
@@ -27,17 +36,114 @@ def upload_to_s3(file, bucket_name, region):
 
 
 @app.route("/")
-# @login_required
+@login_required
 def index():
-    # user_id = session["user_id"]
+    user_id = session["user_id"]
     return render_template("index.html")
     
     # Retrieve the S3 object URL from the query parameters
     #s3_object_url = request.args.get('s3_object_url')
     # # s3_object_url = "https://m.media-amazon.com/images/I/51VXgNZFIoL._AC_UF894,1000_QL80_.jpg"
     # return render_template('index.html', s3_object_url=s3_object_url)
+    
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    """Log user in"""
 
+    # Forget any user_id
+    session.clear()
 
+    # User reached route via POST (as by submitting a form via POST)
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        # Ensure username was submitted
+        if not username:
+            flash("Must provide username")
+            return render_template("login.html")
+
+        # Ensure password was submitted
+        elif not password:
+            flash("Must provide password")
+            return render_template("login.html")
+
+        # Uncomment and update database logic here...
+        rows = db.execute("SELECT * FROM users WHERE username = ?", username)
+
+        # Ensure username exists and password is correct
+        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], password):
+            flash("Invalid username and/or password")
+            return render_template("login.html")
+
+        # Remember which user has logged in
+        session["user_id"] = rows[0]["id"]
+
+        # Redirect user to home page
+        return redirect("/")
+
+    # User reached route via GET (as by clicking a link or via redirect)
+    else:
+        return render_template("login.html")
+    
+@app.route("/register", methods=["GET", "POST"])
+def register():
+    """Register user"""
+    if request.method == "GET":
+        return render_template("register.html")
+    else:
+        # Retrieve form data for username, password, and password confirmation
+        username = request.form.get("username")
+        password = request.form.get("password")
+        confirmation = request.form.get("confirmation")
+
+        if not username:
+            flash("Must provide username")
+            return render_template("register.html")
+
+        if not password:
+            flash("Must provide password")
+            return render_template("register.html")
+
+        if not confirmation:
+            flash("Must confirm password")
+            return render_template("register.html")
+
+        if password != confirmation:
+            flash("Passwords do not match")
+            return render_template("register.html")
+
+        # Generate a hash for the password
+        hash = generate_password_hash(password)
+
+        try:
+            # Attempt to insert the new user into the database
+            new_user = db.execute(
+                "INSERT INTO users (username, hash) VALUES (?, ?)", username, hash
+            )
+
+        except:
+            # Handle the case where the username already exists
+            flash("username has been taken")
+            return render_template("register.html")
+
+        # Set the user_id in the session, logging the user in
+        session["user_id"] = new_user
+
+        # Set new folder for new user
+        path = os.path.join("models", new_user)
+
+        try:
+            os.makedirs(path, exist_ok=True)
+            print(f"Directory '{path}' created successfully")
+        except OSError as error:
+            print(f"Error creating directory: {error}")
+            
+
+        # Redirect to another page
+        return redirect("/")
+
+    
 
 @app.route("/upload", methods=["GET", "POST"])
 @login_required
@@ -58,7 +164,6 @@ def upload():
         return redirect(url_for('view', s3_object_url=s3_object_url))
 
     return render_template('upload.html')
-    
 
 @app.route("/view")
 @login_required
@@ -68,6 +173,3 @@ def view():
     s3_object_url = "https://m.media-amazon.com/images/I/51VXgNZFIoL._AC_UF894,1000_QL80_.jpg"
     return render_template('view.html', s3_object_url=s3_object_url)
 
-@app.route("/test")
-def test():
-    return "Test route is working!"
