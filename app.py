@@ -19,7 +19,7 @@ app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
 # Initialize a new SQL object connected to your database
-db = SQL("sqlite:///finance.db")
+db = SQL("sqlite:///3depot.db")
 
 
 # AWS S3 configuration
