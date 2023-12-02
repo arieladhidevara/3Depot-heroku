@@ -27,15 +27,15 @@ def upload_to_s3(file, bucket_name, region):
 
 
 @app.route("/")
-@login_required
+# @login_required
 def index():
-    user_id = session["user_id"]
+    # user_id = session["user_id"]
     return render_template("index.html")
     
     # Retrieve the S3 object URL from the query parameters
     #s3_object_url = request.args.get('s3_object_url')
-    s3_object_url = "https://m.media-amazon.com/images/I/51VXgNZFIoL._AC_UF894,1000_QL80_.jpg"
-    return render_template('index.html', s3_object_url=s3_object_url)
+    # # s3_object_url = "https://m.media-amazon.com/images/I/51VXgNZFIoL._AC_UF894,1000_QL80_.jpg"
+    # return render_template('index.html', s3_object_url=s3_object_url)
 
 
 
