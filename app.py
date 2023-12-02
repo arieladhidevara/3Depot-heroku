@@ -4,9 +4,10 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 
 from cs50 import SQL
-from flask import Flask, flash, redirect, render_template, request, session, jsonify
+from flask import Flask, flash, redirect, render_template, request, session, jsonify, url_for
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
+from werkzeug.utils import secure_filename
 
 from helpers import login_required
 
@@ -134,26 +135,52 @@ def register():
 
         return redirect("/")
 
-    
-@app.route("/upload", methods=["GET", "POST"])
-@login_required
-def upload():
-    if request.method == 'POST':
-        if 'model' not in request.files:
-            return redirect(request.url)
+@app.route("/logout")
+def logout():
+    """Log user out"""
 
-        file = request.files['model']
+    # Forget any user_id
+    session.clear()
+
+    # Redirect user to login form
+    return redirect("/")
+
+    
+@app.route('/upload', methods=['GET', 'POST'])
+def upload_file():
+    message = ""  # Initialize an empty message
+
+    if request.method == 'POST':
+        # Handle POST request (file upload)
+        if 'modelFile' not in request.files:
+            message = "No file part"
+            return render_template("upload.html", message=message)
+
+        file = request.files['modelFile']
+        new_name = request.form['newFileName']
 
         if file.filename == '':
-            return redirect(request.url)
+            message = "No selected file"
+            return render_template("upload.html", message=message)
 
-        #s3_object_url = upload_to_s3(file, S3_BUCKET, S3_REGION)
-        s3_object_url = "https://m.media-amazon.com/images/I/51VXgNZFIoL._AC_UF894,1000_QL80_.jpg"
+        if 'user_id' not in session:
+            message = "User ID not found in session"
+            return render_template("upload.html", message=message)
 
-        # Redirect to the view page passing the S3 object URL
-        return redirect(url_for('view', s3_object_url=s3_object_url))
+        user_id = session['user_id']
+        user_directory = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id))
 
-    return render_template('upload.html')
+        if file and allowed_file(file.filename):
+            if not os.path.exists(user_directory):
+                os.makedirs(user_directory)
+
+            filename = secure_filename(new_name)
+            file_path = os.path.join(user_directory, filename)
+            file.save(file_path)
+            message = f'File uploaded successfully to {file_path}'
+
+    # Render the form for both GET request and POST request (when not entering the above logic)
+    return render_template("upload.html", message=message)
 
 @app.route("/view")
 @login_required

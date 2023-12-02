@@ -5,9 +5,14 @@
 {% endblock %}
 
 {% block content %}
-    <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
-        <label for="model">Select 3D Model:</label>
-        <input type="file" name="model" accept=".obj, .fbx, .gltf" required>
-        <button type="submit">Upload</button>
+{% if message %}
+    <p>{{ message }}</p>
+{% endif %}
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <label for="modelFile">Select 3D model to upload:</label>
+        <input type="file" name="modelFile" id="modelFile" required><br><br>
+        <label for="newFileName">Enter new file name:</label>
+        <input type="text" name="newFileName" id="newFileName" required><br><br>
+        <input type="submit" value="Upload Model">
     </form>
 {% endblock %}
