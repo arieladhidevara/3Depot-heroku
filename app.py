@@ -92,7 +92,6 @@ def register():
     if request.method == "GET":
         return render_template("register.html")
     else:
-        # Retrieve form data for username, password, and password confirmation
         username = request.form.get("username")
         password = request.form.get("password")
         confirmation = request.form.get("confirmation")
@@ -113,35 +112,28 @@ def register():
             flash("Passwords do not match")
             return render_template("register.html")
 
-        # Generate a hash for the password
         hash = generate_password_hash(password)
 
         try:
-            # Attempt to insert the new user into the database
-            new_user = db.execute(
+            new_user_id = db.execute(
                 "INSERT INTO users (username, hash) VALUES (?, ?)", username, hash
             )
-
-        except:
-            # Handle the case where the username already exists
-            flash("username has been taken")
+        except Exception as e:
+            flash("Username already taken or error in database operation")
             return render_template("register.html")
 
-        # Set the user_id in the session, logging the user in
-        session["user_id"] = new_user
+        session["user_id"] = new_user_id
 
         # Set new folder for new user
-        path = os.path.join("models", new_user)
-
+        path = os.path.join("models", str(new_user_id))
         try:
             os.makedirs(path, exist_ok=True)
-            print(f"Directory '{path}' created successfully")
         except OSError as error:
-            print(f"Error creating directory: {error}")
-            
+            flash("Error creating directory for user data")
+            return render_template("register.html")
 
-        # Redirect to another page
         return redirect("/")
+
 
     
 
