@@ -4,15 +4,38 @@
     My 3Depot - Upload
 {% endblock %}
 
-{% block content %}
-{% if message %}
-    <p>{{ message }}</p>
-{% endif %}
-    <form action="/upload" method="post" enctype="multipart/form-data">
-        <label for="modelFile">Select 3D model to upload:</label>
-        <input type="file" name="modelFile" id="modelFile" required><br><br>
-        <label for="newFileName">Enter new file name:</label>
-        <input type="text" name="newFileName" id="newFileName" required><br><br>
-        <input type="submit" value="Upload Model">
-    </form>
+{% block main %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+{% endwith %}
+
+<form action="/upload" method="post" enctype="multipart/form-data">
+    <label for="file">Select Image:</label>
+    <input type="file" name="file" id="file" accept=".glb" required onchange="updateFilename()">
+    <br>
+    <label for="new_filename">New Filename:</label>
+    <input type="text" name="new_filename" id="new_filename" placeholder="Enter new filename" autofocus>
+    <br>
+    <label for="description">Description:</label>
+    <textarea name="description" id="description" rows="4" cols="50"></textarea>
+    <br>
+    <button type="submit">Upload</button>
+</form>
+
+<script>
+    function updateFilename() {
+        var fileInput = document.getElementById('file');
+        var newFilenameInput = document.getElementById('new_filename');
+        var filename = fileInput.files[0].name;
+        // Remove the file extension if needed
+        newFilenameInput.value = filename.split('.').slice(0, -1).join('.');
+    }
+</script>
+
+
 {% endblock %}

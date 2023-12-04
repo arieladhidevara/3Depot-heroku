@@ -19,34 +19,23 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+UPLOAD_FOLDER = 'models'
+ALLOWED_EXTENSIONS = {'jpg', 'jpeg', 'stl', 'gltf'}
+
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 # Initialize a new SQL object connected to your database
 db = SQL("sqlite:///3depot.db")
-
-
-# AWS S3 configuration
-S3_BUCKET = 'your-s3-bucket-name'
-S3_REGION = 'your-aws-region'
-
-def upload_to_s3(file, bucket_name, region):
-    try:
-        s3 = boto3.client('s3', region_name=region)
-        s3.upload_fileobj(file, bucket_name, file.filename)
-        return f"https://{bucket_name}.s3.amazonaws.com/{file.filename}"
-    except NoCredentialsError as e:
-        return str(e)
-
 
 @app.route("/")
 @login_required
 def index():
     user_id = session["user_id"]
     return render_template("index.html")
-    
-    # Retrieve the S3 object URL from the query parameters
-    #s3_object_url = request.args.get('s3_object_url')
-    # # s3_object_url = "https://m.media-amazon.com/images/I/51VXgNZFIoL._AC_UF894,1000_QL80_.jpg"
-    # return render_template('index.html', s3_object_url=s3_object_url)
-    
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     """Log user in"""
@@ -146,48 +135,55 @@ def logout():
     return redirect("/")
 
     
-@app.route('/upload', methods=['GET', 'POST'])
-def upload_file():
-    message = ""  # Initialize an empty message
+@app.route("/upload", methods=["GET", "POST"])
+@login_required
+def upload():
+    if request.method == 'GET':
 
-    if request.method == 'POST':
-        # Handle POST request (file upload)
-        if 'modelFile' not in request.files:
-            message = "No file part"
-            return render_template("upload.html", message=message)
+        return render_template("upload.html")
 
-        file = request.files['modelFile']
-        new_name = request.form['newFileName']
+    else:
+        if 'file' not in request.files:
+            return redirect(request.url)
+
+        file = request.files['file']
 
         if file.filename == '':
-            message = "No selected file"
-            return render_template("upload.html", message=message)
-
-        if 'user_id' not in session:
-            message = "User ID not found in session"
-            return render_template("upload.html", message=message)
-
-        user_id = session['user_id']
-        user_directory = os.path.join(app.config['UPLOAD_FOLDER'], str(user_id))
+            return redirect(request.url)
 
         if file and allowed_file(file.filename):
-            if not os.path.exists(user_directory):
-                os.makedirs(user_directory)
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            description = request.form.get('description', '')  # Get the description from the form
+            # Save or process the description as needed
+            return redirect(url_for('view'))
+        else:
+            return redirect("/")
 
-            filename = secure_filename(new_name)
-            file_path = os.path.join(user_directory, filename)
-            file.save(file_path)
-            message = f'File uploaded successfully to {file_path}'
 
-    # Render the form for both GET request and POST request (when not entering the above logic)
-    return render_template("upload.html", message=message)
 
 @app.route("/view")
 @login_required
 def view():
-    # Retrieve the S3 object URL from the query parameters
-    #s3_object_url = request.args.get('s3_object_url')
-    s3_object_url = "https://m.media-amazon.com/images/I/51VXgNZFIoL._AC_UF894,1000_QL80_.jpg"
-    return render_template('view.html', s3_object_url=s3_object_url)
+    image_data = []
 
-# commit
+    # Get information about uploaded images
+    for filename in os.listdir(app.config['UPLOAD_FOLDER']):
+        path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        name = filename.split('.')[0]  # Assuming filenames are unique
+        description = "Description goes here"
+        file_size = os.path.getsize(path)
+        colors = "Blue, Green, Red"  # Replace with your logic to get colors
+
+        image_data.append({
+            'path': url_for('static', filename=f'models/{filename}'),
+            'name': name,
+            'description': description,
+            'file_size': file_size,
+            'colors': colors
+        })
+
+    return render_template('view.html', image_data=image_data)
+
+if __name__ == '__main__':
+    app.run(debug=True)
