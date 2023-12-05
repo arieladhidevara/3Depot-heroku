@@ -230,15 +230,11 @@ def upload():
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
             description = request.form.get('description', '')  # Get the description from the form
             filesize = os.path.getsize(filepath)
             user_id = str(session.get("user_id", None))
-
-            new_model = Model(name=filename, desc=description, size=filesize, path=filepath, owner_id=user_id)
-            db.session.add(new_model)
-            db.session.commit()
 
             if not filename:
                 # Check if the new filename is provided, flash warning if not
