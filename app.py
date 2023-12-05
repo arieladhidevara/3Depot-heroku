@@ -219,53 +219,73 @@ def logout():
 @app.route("/upload", methods=["GET", "POST"])
 @login_required
 def upload():
+    # Handle GET request: Render the upload form
     if request.method == 'GET':
         return render_template("upload.html")
     else:
+        # Handle POST request: Process the uploaded file
+
+        # Retrieve the user ID from session
         user_id = str(session.get("user_id", None))
-        
+
+        # Check if the file part is in the request
         if 'file' not in request.files:
             return redirect(request.url)
 
+        # Retrieve the file from the form
         file = request.files['file']
+
+        # Redirect if no file is selected for upload
         if file.filename == '':
             return redirect(request.url)
 
+        # Secure the filename and validate it
         filename = secure_filename(file.filename)
         if not filename:
             flash("Please provide a new filename", "warning")
             return redirect(url_for('upload'))
         
+        # Create a file path for the uploaded file
         user_folder = os.path.join(MODELS_FOLDER, user_id)
         filepath = os.path.join(user_folder, filename)
+
+        # Check if a file with the same name already exists
         if os.path.exists(filepath):
             flash("File with this name already exists. Please choose a different name.", "warning")
             return redirect(url_for('upload'))
 
+        # Check if the file is allowed and save it
         if file and allowed_file(file.filename):
             try:
+                # Save the file to the specified path
                 file.save(filepath)
             except Exception as e:
+                # Handle file saving errors
                 print(f"File saving error: {e}")
                 flash(f"Error saving file: {e}", "error")
                 return redirect(url_for('upload'))
 
-            description = request.form.get('description', '')  # Get the description from the form
+            # Retrieve additional data from the form
+            description = request.form.get('description', '')
             filesize = os.path.getsize(filepath)
-            category = "unknown"
+            category = "unknown"  # Default category value
 
             try:
+                # Create a new model instance and save it to the database
                 new_model = Model(name=filename, desc=description, size=filesize, path=filepath, owner_id=user_id, category=category)
                 db.session.add(new_model)
                 db.session.commit()
             except Exception as e:
+                # Handle database operation errors
                 print(f"Database error: {e}")
                 flash(f"Error in database operation: {e}", "error")
                 db.session.rollback()
                 return redirect(url_for('upload'))
 
+            # Redirect to 'mydepot' upon successful upload
             return redirect(url_for('mydepot'))
         else:
+            # Redirect to the home page if the file is not allowed
             return redirect("/")
 
 
