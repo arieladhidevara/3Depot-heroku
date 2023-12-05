@@ -246,9 +246,10 @@ def upload():
 
             description = request.form.get('description', '')  # Get the description from the form
             filesize = os.path.getsize(filepath)
+            category = "unknown"
 
             try:
-                new_model = Model(name=filename, desc=description, size=filesize, path=filepath, owner_id=user_id)
+                new_model = Model(name=filename, desc=description, size=filesize, path=filepath, owner_id=user_id, category=category)
                 db.session.add(new_model)
                 db.session.commit()
             except Exception as e:
