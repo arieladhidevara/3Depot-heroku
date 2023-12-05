@@ -2,7 +2,6 @@ import os
 
 from botocore.exceptions import NoCredentialsError
 
-from cs50 import SQL
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -18,15 +17,46 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 Session(app)
 
+# Configure database
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ['DATABASE_URL']
+db = SQLAlchemy(app)
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(80), unique=True, nullable=False)
+    hash = db.Column(db.String(80), nullable=False)
+
+    def __init__(self, username):
+        self.username = username
+
+class Model(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80))
+    desc = db.Column(db.String(300))
+    date = db.Column(db.DateTime, default=db.func.current_timestamp())
+    size = db.Column(db.Float)
+    path = db.Column(db.String(150))
+    category = db.Column(db.String(80))
+    owner_id = db.Column(db.Integer)
+
+    def __init__(self, name, desc, size, path, category, owner_id):
+        self.name = name
+        self.desc = desc
+        self.size = size
+        self.path = path
+        self.category = category
+        self.owner_id = owner_id
+
+# Define the main models folder
 MODELS_FOLDER = 'static/models'
+# Allowed extensions
 ALLOWED_EXTENSIONS = {'glb'}
 
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-# Initialize a new SQL object connected to your database
-db = SQL("sqlite:///3depot.db")
 
 @app.route("/")
 def index():
@@ -54,16 +84,16 @@ def login():
             flash("Must provide password")
             return render_template("login.html")
 
-        # Uncomment and update database logic here...
-        rows = db.execute("SELECT * FROM users WHERE username = ?", username)
+        # Query the database using SQLAlchemy
+        user = db.session.query(User).filter_by(username=username).first()
 
         # Ensure username exists and password is correct
-        if len(rows) != 1 or not check_password_hash(rows[0]["hash"], password):
+        if not user or not check_password_hash(user.hash, password):
             flash("Invalid username and/or password")
             return render_template("login.html")
 
         # Remember which user has logged in
-        session["user_id"] = rows[0]["id"]
+        session["user_id"] = user.id
 
         # Redirect user to home page
         return redirect("/")
@@ -107,21 +137,22 @@ def register():
 
         # Attempt to insert new user into the database
         try:
-            new_user_id = db.execute(
-                "INSERT INTO users (username, hash) VALUES (?, ?)", username, hash
-            )
+            new_user = User(username=username, hash=hash)
+            db.session.add(new_user)
+            db.session.commit()
         except Exception as e:
-            # Handle exceptions (like duplicate username)
+            # Rollback in case of any error
+            db.session.rollback()
             flash("Username already taken or error in database operation")
             return render_template("register.html")
 
         # Store the user's ID in the session
         session["user_id"] = new_user_id
 
-        # Create a new folder for the user
-        user_folder = os.path.join("static/models", str(new_user_id))
+        # Set new folder for new user
+        path = os.path.join("models", str(new_user_id))
         try:
-            os.makedirs(user_folder, exist_ok=True)
+            os.makedirs(path, exist_ok=True)
         except OSError as error:
             flash("Error creating directory for user data")
             return render_template("register.html")
@@ -159,10 +190,15 @@ def upload():
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
-            # Check if the file is allowed (based on its extension, presumably)
-            user_id = str(session.get("user_id", None))
-            user_folder = os.path.join(MODELS_FOLDER, user_id)
-            new_filename = request.form.get('new_filename', '')  # Retrieve the new filename from the form
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            description = request.form.get('description', '')  # Get the description from the form
+            filesize = os.path.getsize(path)
+
+            new_model = Model(name=filename, desc=description, size=filesize, path=filepath)
+            db.session.add(new_model)
+            db.session.commit()
 
             if not new_filename:
                 # Check if the new filename is provided, flash warning if not
@@ -184,13 +220,25 @@ def upload():
             model_size = os.path.getsize(full_path)  # Get the size of the uploaded file
 
             try:
-                # Insert file details into the database
-                db.execute("INSERT INTO models (name, desc, size, path, owner_id) VALUES (?, ?, ?, ?, ?)",
-                           new_filename_secure, description, model_size, full_path, user_id)
+                # Create an instance of the Model class
+                new_model = Model(
+                    name=new_filename_secure,
+                    desc=description,
+                    size=model_size,
+                    path=full_path,
+                    owner_id=user_id
+                )
+
+                # Add the new object to the session and commit it
+                db.session.add(new_model)
+                db.session.commit()
             except Exception as e:
                 # Handle database errors
                 print(f"Database error: {e}")
                 flash(f"Error in database operation: {e}", "error")
+
+                # Rollback in case of any error
+                db.session.rollback()
                 return redirect(url_for('upload'))
 
             # Redirect to a different page after successful upload
@@ -215,25 +263,24 @@ def mydepot():
                 # Ensure it's a file, not a directory
         if os.path.isfile(path):
 
+            # Retrieve model information from the database
+            model_result = db.session.query(Model).filter_by(path=path).first()
+
             # Fetch the description
-            description_results = db.execute("SELECT desc FROM models WHERE path = ?", path)
-            if description_results:
-                description = description_results[0]['desc']
+            if model_result:
+                description = model_result.desc
             else:
                 description = 'No description found'
 
-
             # Fetch the size
-            size_results = db.execute("SELECT size FROM models WHERE path = ?", path)
-            if size_results:
-                size = round(size_results[0]['size'] / 1000000, 1)
+            if model_result:
+                size = round(model_result.size / 1000000, 1)  # Assuming size is stored in bytes
             else:
                 size = 'No size found'
 
             # Fetch the id
-            id_results = db.execute("SELECT id FROM models WHERE path = ?", path)
-            if id_results:
-                id = id_results[0]['id']
+            if model_result:
+                id = model_result.id
             else:
                 id = 'No ID found'
 
@@ -270,34 +317,24 @@ def feed():
                 if os.path.isfile(path):
                     name = filename.split('.')[0]  # Assuming filenames are unique
 
+                   # Retrieve model information from the database
+                    model_result = db.session.query(Model).filter_by(path=path).first()
+
                     # Fetch the description
-                    description_results = db.execute("SELECT desc FROM models WHERE path = ?", path)
-                    if description_results:
-                        description = description_results[0]['desc']
-                    else:
-                        description = 'No description found'
+                    description = model_result.desc if model_result else 'No description found'
 
                     # Fetch the owner
-                    owner_results = db.execute("SELECT username FROM users WHERE id = (SELECT owner_id FROM models WHERE path = ?)", path)
-                    if owner_results:
-                        owner = owner_results[0]['username']
+                    if model_result and model_result.owner_id:
+                        owner_result = db.session.query(User).filter_by(id=model_result.owner_id).first()
+                        owner = owner_result.username if owner_result else 'No owner found'
                     else:
                         owner = 'No owner found'
 
                     # Fetch the size
-                    size_results = db.execute("SELECT size FROM models WHERE path = ?", path)
-                    if size_results:
-                        size = round(size_results[0]['size'] / 1000000, 1)
-                    else:
-                        size = 'No size found'
+                    size = round(model_result.size / 1000000, 1) if model_result else 'No size found'  # Assuming size is stored in bytes
 
                     # Fetch the id
-                    id_results = db.execute("SELECT id FROM models WHERE path = ?", path)
-                    if id_results:
-                        id = id_results[0]['id']
-                    else:
-                        id = 'No ID found'
-
+                    id = model_result.id if model_result else 'No ID found'
 
 
                     image_data.append({
@@ -317,40 +354,27 @@ if __name__ == '__main__':
 @app.route("/view")
 def view():
     id= request.args.get('image_id')
-     # Fetch the description
-    description_results = db.execute("SELECT desc FROM models WHERE id = ?", id)
-    if description_results:
-        description = description_results[0]['desc']
-    else:
-        description = 'No description found'
+    # Retrieve model information from the database
+    model_result = db.session.query(Model).filter_by(id=id).first()
+
+    # Fetch the description
+    description = model_result.desc if model_result else 'No description found'
 
     # Fetch the owner
-    owner_results = db.execute("SELECT username FROM users WHERE id = (SELECT owner_id FROM models WHERE id = ?)", id)
-    if owner_results:
-        owner = owner_results[0]['username']
+    if model_result and model_result.owner_id:
+        owner_result = db.session.query(User).filter_by(id=model_result.owner_id).first()
+        owner = owner_result.username if owner_result else 'No owner found'
     else:
         owner = 'No owner found'
 
     # Fetch the size
-    size_results = db.execute("SELECT size FROM models WHERE id = ?", id)
-    if size_results:
-        size = round(size_results[0]['size'] / 1000000, 1)
-    else:
-        size = 'No size found'
+    size = round(model_result.size / 1000000, 1) if model_result else 'No size found'  # Assuming size is in bytes
 
     # Fetch the name
-    name_results = db.execute("SELECT name FROM models WHERE id = ?", id)
-    if name_results:
-        name = name_results[0]['name']
-    else:
-        name = 'No ID found'
+    name = model_result.name if model_result else 'No name found'
 
     # Fetch the path
-    path_results = db.execute("SELECT path FROM models WHERE id = ?", id)
-    if path_results:
-        path = path_results[0]['path']
-    else:
-        path = 'No ID found'
+    path = model_result.path if model_result else 'No path found'
 
 
 
