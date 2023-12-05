@@ -21,7 +21,13 @@ Session(app)
 # Configure database
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
-app.config["SQLALCHEMY_DATABASE_URI"] = os.environ['DATABASE_URL']
+
+database_url = os.environ['DATABASE_URL']
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql://", 1)
+
+app.config["SQLALCHEMY_DATABASE_URI"] = database_url
+
 db = SQLAlchemy(app)
 
 class User(db.Model):
