@@ -56,6 +56,10 @@ class Model(db.Model):
         self.category = category
         self.owner_id = owner_id
 
+# Create tables
+with app.app_context():
+    db.create_all()
+    
 # Define the main models folder
 MODELS_FOLDER = 'static/models'
 # Allowed extensions
