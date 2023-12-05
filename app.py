@@ -108,6 +108,10 @@ def login():
         # Remember which user has logged in
         session["user_id"] = user.id
 
+        # Check if the user's folder is empty
+        user_id = str(session.get("user_id", None))
+        user_folder = str(os.path.join(MODELS_FOLDER, user_id))
+
         if os.listdir(user_folder):
             # User has images, redirect to 'mydepot'
             return redirect(url_for('mydepot'))
@@ -229,38 +233,36 @@ def upload():
             file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
             filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             description = request.form.get('description', '')  # Get the description from the form
-            filesize = os.path.getsize(path)
+            filesize = os.path.getsize(filepath)
+            user_id = str(session.get("user_id", None))
 
-            new_model = Model(name=filename, desc=description, size=filesize, path=filepath)
+            new_model = Model(name=filename, desc=description, size=filesize, path=filepath, owner_id=user_id)
             db.session.add(new_model)
             db.session.commit()
 
-            if not new_filename:
+            if not filename:
                 # Check if the new filename is provided, flash warning if not
                 flash("Please provide a new filename", "warning")
                 return redirect(url_for('upload'))
 
-            # Secure the filename and check if it already exists
-            new_filename_secure = secure_filename(new_filename)
-            full_path = os.path.join(user_folder, new_filename_secure)
 
-            if os.path.exists(full_path):
+            if os.path.exists(filepath):
                 # Flash warning if file with the same name exists
                 flash("File with this name already exists. Please choose a different name.", "warning")
                 return redirect(url_for('upload'))
 
-            file.save(full_path)  # Save the file to the server
+            file.save(filepath)  # Save the file to the server
             description = request.form.get('description', '')  # Retrieve the description from the form
 
-            model_size = os.path.getsize(full_path)  # Get the size of the uploaded file
+            model_size = os.path.getsize(filepath)  # Get the size of the uploaded file
 
             try:
                 # Create an instance of the Model class
                 new_model = Model(
-                    name=new_filename_secure,
+                    name=filename,
                     desc=description,
                     size=model_size,
-                    path=full_path,
+                    path=filepath,
                     owner_id=user_id
                 )
 
