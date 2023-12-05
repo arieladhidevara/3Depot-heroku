@@ -236,13 +236,15 @@ def upload():
         if file and allowed_file(file.filename):
             try:
                 file.save(filepath)
-            except IOError as e:
+            except Exception as e:
                 print(f"File saving error: {e}")
                 flash(f"Error saving file: {e}", "error")
                 return redirect(url_for('upload'))
 
             description = request.form.get('description', '')  # Get the description from the form
-            filesize = os.path.getsize(filepath)
+            # filesize = os.path.getsize(filepath)
+            filesize = 20
+            
             user_id = str(session.get("user_id", None))
 
             try:
