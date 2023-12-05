@@ -68,6 +68,10 @@ MODELS_FOLDER = 'static/models'
 # Allowed extensions
 ALLOWED_EXTENSIONS = {'glb'}
 
+with app.app_context():
+    results = Model.query.all()  # Replace 'Model' with your model class
+    print(results)
+    print("results")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
