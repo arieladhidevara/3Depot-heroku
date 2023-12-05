@@ -257,7 +257,7 @@ def upload():
 
             return redirect(url_for('mydepot'))
         else:
-            return redirect("/")
+            return redirect("mydepot")
 
 
 
