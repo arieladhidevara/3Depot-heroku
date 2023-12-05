@@ -103,9 +103,9 @@ h2 {
 }
 
 .image-container {
-    position: relative;
-    width: 25%; /* Ensure it takes the full width of the gallery */
-    padding-bottom: 25%; /* Create a square container */
+    display: flex;
+    align-items: center; /* This will vertically center the model-viewer and details */
+    margin: 10px; /* Add margin for spacing between items */
 }
 
 .mod {
@@ -146,7 +146,7 @@ h2 {
     height: 100vh; /* Adjust the height as needed */
     width: 50%; /* Sets the width to 50% of the viewport */
     margin: auto; /* Centers the div within the flex container */
-
+}
 /*Upload*/
 
 form {
