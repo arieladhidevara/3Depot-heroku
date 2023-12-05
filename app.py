@@ -24,8 +24,8 @@ Session(app)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 
-database_url = os.environ['DATABASE_URL']
-print(database_url)
+database_url = os.environ["DATABASE_URL"]
+
 if database_url.startswith("postgres://"):
     database_url = database_url.replace("postgres://", "postgresql://", 1)
 
@@ -67,11 +67,6 @@ with app.app_context():
 MODELS_FOLDER = 'static/models'
 # Allowed extensions
 ALLOWED_EXTENSIONS = {'glb'}
-
-# with app.app_context():
-#     results = Model.query.all()  # Replace 'Model' with your model class
-#     print(results)
-#     print("results")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -123,13 +118,13 @@ def login():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user"""
-    print("test 0")
+    
     # Display registration form on GET request
     if request.method == "GET":
         return render_template("register.html")
-        print("test0.1")
+        
     else:
-        print("test0.2")
+        
         # Retrieve form data on POST request
         username = request.form.get("username")
         password = request.form.get("password")
@@ -154,33 +149,41 @@ def register():
 
         # Hash the password
         hash = generate_password_hash(password)
+        
 
         # Attempt to insert new user into the database
         try:
             new_user = User(username=username, hash=hash)
             db.session.add(new_user)
             db.session.commit()
-            print("test1")
+            
         except Exception as e:
             # Rollback in case of any error
             db.session.rollback()
             flash("Username already taken or error in database operation")
             return render_template("register.html")
 
-        # Store the user's ID in the session
-        session["user_id"] = new_user_id
+        # Retrieve model information from the database
+        user_result = db.session.query(User).filter_by(username=username).first()
+
+        # Fetch the description
+        if user_result:
+            user_id = user_result.id
+        else:
+            description = 'No description found'
+    # Store the user's ID in the session
+        session["user_id"] = user_id
+        
 
         # Set new folder for new user
-        path = os.path.join("models", str(new_user_id))
+        path = os.path.join("static/models", str(user_id))
         try:
             os.makedirs(path, exist_ok=True)
-            print("test2")
+            
         except OSError as error:
             flash("Error creating directory for user data")
             return render_template("register.html")
         
-        print("test3")
-
         # Redirect to a different page upon successful registration
         return redirect("/mydepot")
 

@@ -23,7 +23,7 @@
                     <a href="{{ url_for('view', image_id=image.id) }}">{{ image.name }}</a>
                 </h4>
                 <p>Description: {{ image.description }}</p>
-                <p>File Size: {{ image.size }}</p>
+                <p>File Size: {{ image.size MB}}</p>
             </div>
         </div>
     {% endfor %}
