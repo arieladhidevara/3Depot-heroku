@@ -35,10 +35,11 @@ db = SQLAlchemy(app)
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True, nullable=False)
-    hash = db.Column(db.String(80), nullable=False)
+    hash = db.Column(db.String(1024), nullable=False)
 
-    def __init__(self, username):
+    def __init__(self, username, hash):
         self.username = username
+        self.hash = hash
 
 class Model(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -160,6 +161,8 @@ def register():
             # Rollback in case of any error
             db.session.rollback()
             flash("Username already taken or error in database operation")
+            print(e)
+            print(database_url)
             return render_template("register.html")
 
         # Retrieve model information from the database
