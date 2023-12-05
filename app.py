@@ -123,10 +123,11 @@ def login():
 @app.route("/register", methods=["GET", "POST"])
 def register():
     """Register user"""
-
+    print("test 0")
     # Display registration form on GET request
     if request.method == "GET":
         return render_template("register.html")
+        print("test0.1")
     else:
         # Retrieve form data on POST request
         username = request.form.get("username")
@@ -158,6 +159,7 @@ def register():
             new_user = User(username=username, hash=hash)
             db.session.add(new_user)
             db.session.commit()
+            print("test1")
         except Exception as e:
             # Rollback in case of any error
             db.session.rollback()
@@ -171,9 +173,12 @@ def register():
         path = os.path.join("models", str(new_user_id))
         try:
             os.makedirs(path, exist_ok=True)
+            print("test2")
         except OSError as error:
             flash("Error creating directory for user data")
             return render_template("register.html")
+        
+        print("test3")
 
         # Redirect to a different page upon successful registration
         return redirect("/mydepot")
