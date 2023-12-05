@@ -63,6 +63,13 @@ class Model(db.Model):
 with app.app_context():
     db.create_all()
 
+from sqlalchemy import inspect
+
+inspector = inspect(db.engine)
+tables = inspector.get_table_names()
+print(tables) 
+print("tables")
+
 # Define the main models folder
 MODELS_FOLDER = 'static/models'
 # Allowed extensions
