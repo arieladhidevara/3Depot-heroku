@@ -114,7 +114,7 @@ h2 {
     left: 0;
     width: 100%;
     height: 100%;
-    max-width: 300px;
+    max-width: 400px;
     margin-top: 150px; /* Adjust the margin as needed to create space between the text and the model viewer */
 }
 
@@ -145,7 +145,7 @@ h2 {
     height: 100vh; /* Adjust the height as needed */
     width: 50%; /* Sets the width to 50% of the viewport */
     margin: auto; /* Centers the div within the flex container */
-
+}
 /*Upload*/
 
 form {
