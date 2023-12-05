@@ -112,11 +112,17 @@ def login():
         user_id = str(session.get("user_id", None))
         user_folder = str(os.path.join(MODELS_FOLDER, user_id))
 
-        if os.listdir(user_folder):
-            # User has images, redirect to 'mydepot'
-            return redirect(url_for('mydepot'))
+        # Check if the folder exists and is a directory
+        if os.path.exists(user_folder) and os.path.isdir(user_folder):
+            # Check if the folder is empty
+            if os.listdir(user_folder):
+                # The folder is not empty (has files or directories), redirect to 'mydepot'
+                return redirect(url_for('mydepot'))
+            else:
+                # The folder is empty, redirect to 'no_files_mydepot'
+                return redirect(url_for('no_files_mydepot'))
         else:
-        # User has no images, redirect to 'no_files_mydepot'
+            # The folder does not exist or is not a directory
             return redirect(url_for('no_files_mydepot'))
 
     # User reached route via GET (as by clicking a link or via redirect)
