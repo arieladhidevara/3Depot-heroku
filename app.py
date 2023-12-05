@@ -114,7 +114,7 @@ def login():
 
         if os.listdir(user_folder):
             # User has images, redirect to 'mydepot'
-            return redirect(url_for('mydepot'))
+            return redirect(('/mydepot'))
 
         # User has no images, redirect to 'no_files_mydepot'
         return redirect(url_for('no_files_mydepot'))
