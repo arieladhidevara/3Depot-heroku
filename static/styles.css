@@ -99,6 +99,8 @@ h2 {
     grid-template-columns: repeat(3, 1fr); /* Creates 3 columns of equal width */
     grid-gap: 20px; /* Adjust the space between grid items */
     margin-top: 20px; /* Adjust as per your design */
+    margin-left: auto; /* Centers the grid horizontally */
+    margin-right: auto; /* Centers the grid horizontally */
 }
 
 
