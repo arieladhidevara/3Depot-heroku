@@ -7,6 +7,7 @@ from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
+from app import app, db
 
 from helpers import login_required
 
@@ -59,7 +60,7 @@ class Model(db.Model):
 # Create tables
 with app.app_context():
     db.create_all()
-    
+
 # Define the main models folder
 MODELS_FOLDER = 'static/models'
 # Allowed extensions
