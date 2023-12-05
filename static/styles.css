@@ -46,6 +46,12 @@ body {
     padding: 50px;
   }
 
+h2 {
+    font-family: 'Glacial Indifference', sans-serif;
+    padding: 50px;
+    font-style: italic;
+  }
+
   p {
     font-family: 'Glacial Indifference', sans-serif;
     padding: 10px;
@@ -78,29 +84,46 @@ body {
   }
 
   .sphere {
-    max-width: 100%;
-    width: 100%;
-    height: 300px;
-    object-fit: cover;
+    max-width: 30%;
+    width: 30%;
+    height: auto; /* Allow the height to adjust automatically to maintain the image's aspect ratio */
     display: block;
     margin-bottom: 10px;
     margin-top: 10px;
-  }
+}
 
   /*To view model*/
 
-.gallery {
+  .gallery {
     display: flex;
     flex-wrap: wrap;
-    gap: 400px;
     justify-content: center;
     align-items: flex-start;
     margin-top: 200px;
 }
 
 .image-container {
-    text-align: center;
+    position: relative;
+    width: 25%; /* Ensure it takes the full width of the gallery */
+    padding-bottom: 25%; /* Create a square container */
 }
+
+.mod {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    max-width: 400px;
+    margin-top: 150px; /* Adjust the margin as needed to create space between the text and the model viewer */
+}
+
+.model-viewer {
+    width: 100%;
+    height: 100%;
+}
+
+
 
 .image {
     max-width: 100%;
@@ -112,6 +135,7 @@ body {
     margin-bottom: 5px;
     text-align: center;
 }
+
 
 .center-container {
     display: flex;
@@ -130,6 +154,11 @@ form {
     text-align: center; /* Center the form elements */
 }
 
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
 /* Optional: Style the form elements as needed */
 label, input, textarea, button {
     display: block;
@@ -138,4 +167,15 @@ label, input, textarea, button {
 
 button {
     padding: 10px 20px; /* Adjust the button padding as needed */
+}
+
+
+.black-link {
+    color: black;
+    text-decoration: none;  /* Optional: remove underline */
+}
+
+.black-link:hover {
+    background-color: black;
+    color: white;  /* Optional: change text color on hover */
 }
