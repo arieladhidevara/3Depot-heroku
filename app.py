@@ -277,6 +277,12 @@ def mydepot():
 
     user_id = str(session.get("user_id", None))
     user_folder = str(os.path.join(MODELS_FOLDER, user_id))
+
+    # Check if the user folder exists
+    if not os.path.exists(user_folder):
+        # If it does not exist, redirect to 'no_files_mydepot'
+        return redirect(url_for('no_files_mydepot'))
+
     # Get information about uploaded images
     for filename in os.listdir(user_folder):
         path = os.path.join(user_folder, filename)
