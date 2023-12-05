@@ -95,17 +95,17 @@ h2 {
   /*To view model*/
 
   .gallery {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    align-items: flex-start;
-    margin-top: 200px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Creates 3 columns of equal width */
+    grid-gap: 20px; /* Adjust the space between grid items */
+    margin-top: 20px; /* Adjust as per your design */
 }
 
+
 .image-container {
-    display: flex;
-    align-items: center; /* This will vertically center the model-viewer and details */
-    margin: 10px; /* Add margin for spacing between items */
+    position: relative;
+    width: 25%; /* Ensure it takes the full width of the gallery */
+    padding-bottom: 25%; /* Create a square container */
 }
 
 .mod {
