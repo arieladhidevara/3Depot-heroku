@@ -38,9 +38,13 @@
         <nav class="bg-light border navbar navbar-expand-md navbar-light">
             <div class="container-fluid">
                 {% if session["user_id"] %}
-                <span href="/feed" style="font-weight: bold;">3D</span>epot
+                <a class="navbar-brand" href="/feed">
+                    <span style="font-weight: bold;">3D</span>epot
+                </a>
                 {% else %}
-                <a class="navbar-brand" href="/">3Depot</a>
+                <a class="navbar-brand" href="/">
+                    <span style="font-weight: bold;">3D</span>epot
+                </a>
                 {% endif %}
                 <button aria-controls="navbar" aria-expanded="false" aria-label="Toggle navigation" class="navbar-toggler" data-bs-target="#navbar" data-bs-toggle="collapse" type="button">
                     <span class="navbar-toggler-icon"></span>
