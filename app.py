@@ -3,7 +3,7 @@ load_dotenv()
 import os
 
 from botocore.exceptions import NoCredentialsError
-
+import psycopg2
 from flask import Flask, flash, redirect, render_template, request, session, url_for
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
@@ -22,7 +22,6 @@ Session(app)
 
 # Configure database
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
 
 database_url = os.environ["DATABASE_URL"]
 
