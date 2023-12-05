@@ -227,8 +227,9 @@ def upload():
         if not filename:
             flash("Please provide a new filename", "warning")
             return redirect(url_for('upload'))
-
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        
+        user_folder = os.path.join(MODELS_FOLDER, user_id)
+        filepath = os.path.join(user_folder, filename)
         if os.path.exists(filepath):
             flash("File with this name already exists. Please choose a different name.", "warning")
             return redirect(url_for('upload'))
@@ -242,9 +243,9 @@ def upload():
                 return redirect(url_for('upload'))
 
             description = request.form.get('description', '')  # Get the description from the form
-            # filesize = os.path.getsize(filepath)
-            filesize = 20
+            filesize = os.path.getsize(filepath)
             
+
             user_id = str(session.get("user_id", None))
 
             try:
