@@ -230,34 +230,31 @@ def upload():
 
         if file and allowed_file(file.filename):
             filename = secure_filename(file.filename)
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            file.save(filepath)
-            description = request.form.get('description', '')  # Get the description from the form
-            filesize = os.path.getsize(filepath)
-            user_id = str(session.get("user_id", None))
-
             if not filename:
                 # Check if the new filename is provided, flash warning if not
                 flash("Please provide a new filename", "warning")
                 return redirect(url_for('upload'))
 
-
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
             if os.path.exists(filepath):
                 # Flash warning if file with the same name exists
                 flash("File with this name already exists. Please choose a different name.", "warning")
                 return redirect(url_for('upload'))
+            
+            file.save(filepath)
+            
+            description = request.form.get('description', '')  # Get the description from the form
+            filesize = os.path.getsize(filepath)
+            user_id = str(session.get("user_id", None))
 
-            file.save(filepath)  # Save the file to the server
             description = request.form.get('description', '')  # Retrieve the description from the form
-
-            model_size = os.path.getsize(filepath)  # Get the size of the uploaded file
 
             try:
                 # Create an instance of the Model class
                 new_model = Model(
                     name=filename,
                     desc=description,
-                    size=model_size,
+                    size=filesize,
                     path=filepath,
                     owner_id=user_id
                 )
