@@ -108,8 +108,12 @@ def login():
         # Remember which user has logged in
         session["user_id"] = user.id
 
-        # Redirect user to home page
-        return redirect("/")
+        if os.listdir(user_folder):
+            # User has images, redirect to 'mydepot'
+            return redirect(url_for('mydepot'))
+
+        # User has no images, redirect to 'no_files_mydepot'
+        return redirect(url_for('no_files_mydepot'))
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
@@ -135,17 +139,18 @@ def register():
             flash("Must provide username")
             return render_template("register.html")
 
+        # Validate form data
+        if not username:
+            return render_template("register.html", flash_message="Must provide username")
+
         if not password:
-            flash("Must provide password")
-            return render_template("register.html")
+            return render_template("register.html", flash_message="Must provide password")
 
         if not confirmation:
-            flash("Must confirm password")
-            return render_template("register.html")
+            return render_template("register.html", flash_message="Must confirm password")
 
         if password != confirmation:
-            flash("Passwords do not match")
-            return render_template("register.html")
+            return render_template("register.html", flash_message="Passwords don't match")
 
         # Hash the password
         hash = generate_password_hash(password)
@@ -187,7 +192,8 @@ def register():
             return render_template("register.html")
         
         # Redirect to a different page upon successful registration
-        return redirect("/mydepot")
+        return redirect(url_for('no_files_mydepot'))
+
 
 @app.route("/logout")
 def logout():
@@ -322,10 +328,23 @@ def mydepot():
                 'id' : id
             })
 
+    if not image_data:
+        # Redirect to the "no files" page for mydepot
+        return redirect(url_for('no_files_mydepot'))
+        
     return render_template('mydepot.html', image_data=image_data)
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+@app.route("/no_files_mydepot")
+def no_files_mydepot():
+    # Render the "You have no files yet" page for mydepot
+    return render_template('no_files_mydepot.html')
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 @app.route("/feed")
 @login_required
