@@ -216,6 +216,8 @@ def upload():
     if request.method == 'GET':
         return render_template("upload.html")
     else:
+        user_id = str(session.get("user_id", None))
+        
         if 'file' not in request.files:
             return redirect(request.url)
 
@@ -244,9 +246,6 @@ def upload():
 
             description = request.form.get('description', '')  # Get the description from the form
             filesize = os.path.getsize(filepath)
-            
-
-            user_id = str(session.get("user_id", None))
 
             try:
                 new_model = Model(name=filename, desc=description, size=filesize, path=filepath, owner_id=user_id)
