@@ -288,8 +288,6 @@ def upload():
             # Redirect to the home page if the file is not allowed
             return redirect("/")
 
-
-
 @app.route("/mydepot")
 @login_required
 def mydepot():
@@ -298,7 +296,7 @@ def mydepot():
     user_id = str(session.get("user_id", None))
     user_folder = str(os.path.join(MODELS_FOLDER, user_id))
 
-    # Check if the user folder exists
+     # Check if the user folder exists
     if not os.path.exists(user_folder):
         # If it does not exist, redirect to 'no_files_mydepot'
         return redirect(url_for('no_files_mydepot'))
