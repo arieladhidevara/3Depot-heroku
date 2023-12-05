@@ -68,10 +68,10 @@ MODELS_FOLDER = 'static/models'
 # Allowed extensions
 ALLOWED_EXTENSIONS = {'glb'}
 
-with app.app_context():
-    results = Model.query.all()  # Replace 'Model' with your model class
-    print(results)
-    print("results")
+# with app.app_context():
+#     results = Model.query.all()  # Replace 'Model' with your model class
+#     print(results)
+#     print("results")
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
@@ -129,6 +129,7 @@ def register():
         return render_template("register.html")
         print("test0.1")
     else:
+        print("test0.2")
         # Retrieve form data on POST request
         username = request.form.get("username")
         password = request.form.get("password")
