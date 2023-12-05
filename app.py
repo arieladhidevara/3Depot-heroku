@@ -8,7 +8,7 @@ from flask import Flask, flash, redirect, render_template, request, session, url
 from flask_session import Session
 from werkzeug.security import check_password_hash, generate_password_hash
 from werkzeug.utils import secure_filename
-from Flask-SQLAlchemy import SQLAlchemy
+from flask_sqlalchemy import SQLAlchemy
 
 from helpers import login_required
 
