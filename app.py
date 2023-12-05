@@ -115,9 +115,9 @@ def login():
         if os.listdir(user_folder):
             # User has images, redirect to 'mydepot'
             return redirect(url_for('mydepot'))
-
+        else:
         # User has no images, redirect to 'no_files_mydepot'
-        return redirect(url_for('no_files_mydepot'))
+            return redirect(url_for('no_files_mydepot'))
 
     # User reached route via GET (as by clicking a link or via redirect)
     else:
