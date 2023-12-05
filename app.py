@@ -211,70 +211,52 @@ def logout():
 
 
 @app.route("/upload", methods=["GET", "POST"])
-@login_required  # Ensure that only logged-in users can access this route
+@login_required
 def upload():
     if request.method == 'GET':
-        # If the method is GET, render the upload form template
         return render_template("upload.html")
     else:
-        # Handle the POST request for file upload
         if 'file' not in request.files:
-            # Redirect to the upload page if no file part in the request
             return redirect(request.url)
 
         file = request.files['file']
-
         if file.filename == '':
-            # Redirect if no file was selected
             return redirect(request.url)
 
+        filename = secure_filename(file.filename)
+        if not filename:
+            flash("Please provide a new filename", "warning")
+            return redirect(url_for('upload'))
+
+        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(filepath):
+            flash("File with this name already exists. Please choose a different name.", "warning")
+            return redirect(url_for('upload'))
+
         if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            if not filename:
-                # Check if the new filename is provided, flash warning if not
-                flash("Please provide a new filename", "warning")
+            try:
+                file.save(filepath)
+            except IOError as e:
+                print(f"File saving error: {e}")
+                flash(f"Error saving file: {e}", "error")
                 return redirect(url_for('upload'))
 
-            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-            if os.path.exists(filepath):
-                # Flash warning if file with the same name exists
-                flash("File with this name already exists. Please choose a different name.", "warning")
-                return redirect(url_for('upload'))
-            
-            file.save(filepath)
-            
             description = request.form.get('description', '')  # Get the description from the form
             filesize = os.path.getsize(filepath)
             user_id = str(session.get("user_id", None))
 
-            description = request.form.get('description', '')  # Retrieve the description from the form
-
             try:
-                # Create an instance of the Model class
-                new_model = Model(
-                    name=filename,
-                    desc=description,
-                    size=filesize,
-                    path=filepath,
-                    owner_id=user_id
-                )
-
-                # Add the new object to the session and commit it
+                new_model = Model(name=filename, desc=description, size=filesize, path=filepath, owner_id=user_id)
                 db.session.add(new_model)
                 db.session.commit()
             except Exception as e:
-                # Handle database errors
                 print(f"Database error: {e}")
                 flash(f"Error in database operation: {e}", "error")
-
-                # Rollback in case of any error
                 db.session.rollback()
                 return redirect(url_for('upload'))
 
-            # Redirect to a different page after successful upload
             return redirect(url_for('mydepot'))
         else:
-            # Redirect to the home page if the file is not allowed
             return redirect("/")
 
 
