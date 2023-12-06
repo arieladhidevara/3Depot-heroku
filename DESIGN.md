@@ -21,7 +21,6 @@ This section details the technologies used in the development of 3Depot and thei
 - It enhances the visual appeal of the site, ensuring a user-friendly and engaging interface.
 - (Sophia, please elaborate on the CSS design principles, themes, and any frameworks or preprocessors used.)
 
-## SQL (SQLite3)
-- SQLite3, a lightweight SQL database, is used for data storage.
+## SQL (SQLite3) to SQLAlchemy (Postgres)
 - The `users` table stores user information and is linked to user sessions for maintaining state and authentication.
 - The `models` table stores information about each 3D model, including unique paths to the stored models.

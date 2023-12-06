@@ -13,23 +13,74 @@
   - GoogleAPI (3D Model Viewer)
 - **HTML**
 - **CSS**
-- **SQLite3**: For the database.
+- **SQLite3**: For the database. local 
+- **SQLAlchemy (postgres): For the database. Heroku
 
-## Python Libraries
+## Libraries
 
-- botocore.exceptions
-- flask
-- flask_session
-- werkzeug.security
-- werkzeug.utils
-- os
+See requirements.txt for the full libraries requirement
 
 ## Installation Guide
 
-1. Set up and run the application in CS50 VScodespace.
-2. Install all required libraries.
-3. Navigate to the project's folder (`3Depot`) in the terminal.
-4. Execute `flask run` to start the application.
+-- CS50 VScode IDE --
+
+#### Setup and Application Launch
+1. Access the CS50 VScodespace.
+2. Open the terminal within the VScodespace.
+3. Ensure that Python and Flask are installed.
+
+#### Library Installation
+1. Use `pip install -r requirements.txt` to install all necessary libraries.
+
+#### Project Navigation
+1. Navigate to the `3Depot` project folder using `cd 3Depot`.
+
+#### Starting the Application
+1. Run the application by executing `flask run`.
+2. Ensure that environment variables are set correctly.
+
+
+-- Local VScode (Heroku) --
+
+#### Setting up the Environment
+
+##### Project Loading
+1. Load the project into local VScode.
+
+##### Windows OS Setup
+1. For Windows, install WSL with Ubuntu.
+
+##### Heroku and Repository Setup
+1. Sign up for a Heroku account.
+2. Install Heroku CLI.
+3. Clone the repository to your local drive.
+
+##### Git and Library Installation
+1. Install Git in Ubuntu WSL.
+2. Install necessary libraries and add-ons.
+3. Activate the virtual environment using `source venv/bin/activate`.
+
+#### Setting up the Database
+
+##### Database Configuration
+1. Create a PostgreSQL account and database.
+2. Copy the database URL to `.env`.
+
+##### Database Table Creation
+1. Run `heroku run python create_tables.py -a your-heroku-app-name`.
+
+#### Run and Deploy
+
+##### Deployment to Heroku
+1. Push code changes to Heroku using `git push heroku main`.
+2. Verify the app runs correctly on Heroku.
+
+### Additional Notes
+- Test the application locally before deploying.
+- Regularly commit changes to your Git repository.
+
+### Reference
+- [CS50 - Publishing Your Flask App to the Web](https://www.youtube.com/watch?v=4_RYQJfiuVU)
 
 ## Website Functionality
 
@@ -46,9 +97,9 @@
 
 ## Future Updates
 
-- **YouTube Link**: [Link to be added] - for tutorials and demonstrations.
+- **YouTube Link**: https://youtu.be/Qeu7crevUH0 - for tutorials and demonstrations.
 
 ## Contact Information
 
 - Ariel Adhidevara: arieladhidevara@gsd.harvard.edu
-- Soiphia Cabral: scabral@gsd.harvard.edu
+- Sophia Cabral: scabral@gsd.harvard.edu
