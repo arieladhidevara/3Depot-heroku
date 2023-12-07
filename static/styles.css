@@ -222,3 +222,7 @@ button {
         grid-template-columns: repeat(1, 1fr); /* Stack columns on smaller screens */
     }
 }
+
+.black-link {
+    color: black;
+}
