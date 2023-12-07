@@ -6,25 +6,23 @@
 
 {% block main %}
 
-<div class="gallery">
+<div class="gallery-grid">
     {% for image in image_data %}
-        <div class="gallery-grid">
-            {% for image in image_data %}
-                <div class="model-block">
-                    <div class="model-viewer-container">
-                        <model-viewer class="mod" bounds="tight" src="{{ image.path }}" ar ar-modes="scene-viewer webxr quick-look"
-                            camera-controls poster="poster.webp" shadow-intensity="2" exposure="2"
-                            camera-orbit="-422.2deg 90deg auto" environment-image="neutral" auto-rotate
-                            rotation-per-second="30deg">
-                        </model-viewer>
-                    </div>
-                    <div class="model-details">
-                        <h4><a href="{{ url_for('view', image_id=image.id) }}">{{ image.name }}</a></h4>
-                        <p>Description: {{ image.description }}</p>
-                        <p>Owner: {{ image.owner }}</p>
-                        <p>File Size: {{ image.file_size }} MB</p>
-                    </div>
-                </div>
+        <div class="model-block">
+            <div class="model-viewer-container">
+                <model-viewer class="mod" bounds="tight" src="{{ image.path }}" ar ar-modes="scene-viewer webxr quick-look"
+                    camera-controls poster="poster.webp" shadow-intensity="2" exposure="2"
+                    camera-orbit="-422.2deg 90deg auto" environment-image="neutral" auto-rotate
+                    rotation-per-second="30deg">
+                </model-viewer>
+            </div>
+            <div class="model-details">
+                <h4><a href="{{ url_for('view', image_id=image.id) }}">{{ image.name }}</a></h4>
+                <p>Description: {{ image.description }}</p>
+                <p>Owner: {{ image.owner }}</p>
+                <p>File Size: {{ image.file_size }} MB</p>
+            </div>
+        </div>
     {% endfor %}
 </div>
 
