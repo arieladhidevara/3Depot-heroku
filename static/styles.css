@@ -204,7 +204,9 @@ button {
 }
 
 .model-details {
-    margin-top: 10px; /* Space between model viewer and details */
+    margin-top: 5px;
+    margin-bottom: 5px;
+    line-height: 1.2; /* Space between model viewer and details */
     text-align: center; /* Center-align the text for aesthetics */
     /* Add any specific styling for the model details here */
 }
