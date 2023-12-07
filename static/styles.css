@@ -121,6 +121,8 @@ h2 {
 .model-viewer {
     display: block;
     width: 100%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 
@@ -196,7 +198,9 @@ button {
 
 .model-viewer-container {
     width: 100%; /* Adjust model viewer width as needed */
-    /* Add any specific styling for the model viewer container here */
+    display: flex;
+    justify-content: center;  /* Horizontally center the child */
+    align-items: center; 
 }
 
 .model-details {
