@@ -179,3 +179,35 @@ button {
     background-color: black;
     color: white;  /* Optional: change text color on hover */
 }
+
+
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* Creates 3 columns */
+    grid-gap: 20px; /* Adjust the gap between columns as needed */
+    margin: 20px; /* Add some margin around the grid */
+}
+
+.model-block {
+    display: flex;
+    flex-direction: column; /* Stack the viewer and details vertically */
+    align-items: center; /* Center-align items */
+}
+
+.model-viewer-container {
+    width: 100%; /* Adjust model viewer width as needed */
+    /* Add any specific styling for the model viewer container here */
+}
+
+.model-details {
+    margin-top: 10px; /* Space between model viewer and details */
+    text-align: center; /* Center-align the text for aesthetics */
+    /* Add any specific styling for the model details here */
+}
+
+/* Responsive behavior (optional) */
+@media (max-width: 768px) {
+    .gallery-grid {
+        grid-template-columns: repeat(1, 1fr); /* Stack columns on smaller screens */
+    }
+}
