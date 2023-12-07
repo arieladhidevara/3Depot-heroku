@@ -239,8 +239,9 @@ def upload():
         if file.filename == '':
             return redirect(request.url)
 
-        # Secure the filename and validate it
-        filename = secure_filename(file.filename)
+        # Request and Secure the filename and validate it
+        new_filename = request.form.get('new_filename', '') 
+        filename = secure_filename(new_filename)
         if not filename:
             flash("Please provide a new filename", "warning")
             return redirect(url_for('upload'))
