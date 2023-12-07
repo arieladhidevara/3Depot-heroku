@@ -9,7 +9,7 @@
 <div class="gallery-grid">
     {% for image in image_data %}
         <div class="model-block">
-            
+            <div class="model-viewer-container">
                 <model-viewer bounds="tight" src="{{ image.path }}" ar ar-modes="scene-viewer webxr quick-look"
                     camera-controls poster="poster.webp" shadow-intensity="2" exposure="2"
                     camera-orbit="-422.2deg 90deg auto" environment-image="neutral" auto-rotate
@@ -21,7 +21,7 @@
                 <p>Description: {{ image.description }}</p>
                 <p>Owner: {{ image.owner }}</p>
                 <p>File Size: {{ image.file_size }} MB</p>
-            
+            </div>
         </div>
     {% endfor %}
 </div>
