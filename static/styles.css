@@ -185,7 +185,7 @@ button {
 
 .gallery-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr); /* Creates 3 columns */
+    grid-template-columns: repeat(4, 1fr); /* Creates 4columns */
     grid-gap: 20px; /* Adjust the gap between columns as needed */
     margin: 20px; /* Add some margin around the grid */
 }
@@ -205,10 +205,14 @@ button {
 
 .model-details {
     margin-top: 5px;
-    margin-bottom: 5px;
-    line-height: 1.2; /* Space between model viewer and details */
     text-align: center; /* Center-align the text for aesthetics */
     /* Add any specific styling for the model details here */
+}
+
+.model-details p {
+    margin-top: 5px;    /* Reduces space above each paragraph */
+    margin-bottom: 5px; /* Reduces space below each paragraph */
+    line-height: 1.2;   /* Adjusts the space between lines of text within the same paragraph */
 }
 
 /* Responsive behavior (optional) */
