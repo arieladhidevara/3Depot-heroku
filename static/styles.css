@@ -123,6 +123,7 @@ h2 {
     width: 100%;
     margin-left: auto;
     margin-right: auto;
+    height: 500px;
 }
 
 
@@ -212,7 +213,7 @@ button {
 .model-details p {
     margin-top: 5px;    /* Reduces space above each paragraph */
     margin-bottom: 5px; /* Reduces space below each paragraph */
-    line-height: 1.2;   /* Adjusts the space between lines of text within the same paragraph */
+    line-height: 0.5;   /* Adjusts the space between lines of text within the same paragraph */
 }
 
 /* Responsive behavior (optional) */
